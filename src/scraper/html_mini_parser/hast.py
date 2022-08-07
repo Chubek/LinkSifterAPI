@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import Any, List, Literal, Optional, Tuple, Union
 from __future__ import annotations
 from utils import simple_hasher
-
+from .lexer_items import *
 
 class Attribute(BaseModel):
     attr_name: str
@@ -11,7 +11,7 @@ class Attribute(BaseModel):
 
 
 class Text(BaseModel):
-    text: List[Letters.SmallLetters]
+    text: List[SmallLetters]
 
 class Element(BaseModel):
     tag_name: str
@@ -42,9 +42,4 @@ class HASTParser:
         curr_char = self.text[self.text_index]
         next_char = self.text[self.text_index + 1]
 
-        match (
-                prev_char,
-                curr_char,
-                next_char
-            ):
-            case
+

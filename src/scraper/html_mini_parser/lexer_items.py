@@ -2,65 +2,65 @@ from enum import Enum
 from pydantic import BaseModel
 from typing import Literal
 
-class Brackets(BaseModel):
-    LeftAngleBracket = Literal['<']
-    RightAngleBracket = Literal['>']
-    LeftParanBracket = Literal['(']
-    RightParanleBracket = Literal[')']
-    LeftSquareBracket = Literal['[']
-    RightSquareleBracket = Literal[']']
-    LeftCurlyBracket = Literal['{']
-    RightCurlyleBracket = Literal['}']
+class Brackets(str, Enum):
+    LeftAngleBracket = '<'
+    RightAngleBracket = '>'
+    LeftParanBracket = '('
+    RightParanleBracket = ')'
+    LeftSquareBracket = '['
+    RightSquareleBracket = ''
+    LeftCurlyBracket = '{'
+    RightCurlyleBracket = '}'
 
-class Slashes(BaseModel):
-    ForwardSlash = Literal['/']
-    BackwardSlash = Literal['\\']
+class Slashes(str, Enum):
+    ForwardSlash = '/'
+    BackwardSlash = '\\'
 
-class SpecialSymbolsCode(BaseModel):
-    AcuteAccent = Literal['&#180;']
-    Ampersand   = Literal['&#38;']
-    CentSign = Literal['&#162;']
-    Copyright = Literal['&#169;']
-    Dagger = Literal['&#180;']
-    DegreeSign = Literal['&#247;']
-    DivisionSign = Literal['&#180;']
-    Euro = Literal['&#8363;']
-    FractionOneHalf	 = Literal['&#189;']
-    FractionOneFourth = Literal['&#188;']
-    FractionThreeFouths	 = Literal['&#190;']
-    GreaterThan = Literal['&#62;']
-    LeftAngleQuote = Literal['&#171;']
-    LessThan = Literal['&#60;']
-    Multiply = Literal['&#215;']
-    PlusMinus = Literal['&#177;']
-    LeftQuotation = Literal['&#8220;']
-    RightQuotation = Literal['&#8221;']
-    RightAngleQuote = Literal['&#185;']
-    SuperScriptOne = Literal['&#187;']
-    Trademark = Literal['&#8482;']
+class SpecialCharacters(str, Enum):
+    AcuteAccent = '&#180;'
+    Ampersand   = '&#38;'
+    CentSign = '&#162;'
+    Copyright = '&#169;'
+    Dagger = '&#180;'
+    DegreeSign = '&#247;'
+    DivisionSign = '&#180;'
+    Euro = '&#8363;'
+    FractionOneHalf	 = '&#189;'
+    FractionOneFourth = '&#188;'
+    FractionThreeFouths	 = '&#190;'
+    GreaterThan = '&#62;'
+    LeftAngleQuote = '&#171;'
+    LessThan = '&#60;'
+    Multiply = '&#215;'
+    PlusMinus = '&#177;'
+    LeftQuotation = '&#8220;'
+    RightQuotation = '&#8221;'
+    RightAngleQuote = '&#185;'
+    SuperScriptOne = '&#187;'
+    Trademark = '&#8482;'
 
 
-class UsualSymbols(BaseModel):
-    Asterisk = Literal['*']
-    SingleQuote = Literal["'"]
-    DoubleQuote = Literal['"']
-    AtSign = Literal['@']
-    PercentSign = Literal['%']
-    DollarSign = Literal['$']
-    Caret = Literal['^']
-    Dash = Literal['-']
-    Pipe = Literal['|']    
-    UnderLine = Literal['_']
-    Ampersand = Literal['&']
-    Pound = Literal['#']
-    Excl = Literal['!']
-    EqualSign = Literal['=']
-    Colon = Literal[':']
-    SemiColon = Literal[';']
-    PlusSign = Literal['+']
-    SpaceBar = Literal[' ']
+class Symbols(str, Enum):
+    Asterisk = '*'
+    SingleQuote = "'"
+    DoubleQuote = '"'
+    AtSign = '@'
+    PercentSign = '%'
+    DollarSign = '$'
+    Caret = '^'
+    Dash = '-'
+    Pipe = '|'    
+    UnderLine = '_'
+    Ampersand = '&'
+    Pound = '#'
+    Excl = '!'
+    EqualSign = '='
+    Colon = ':'
+    SemiColon = ';'
+    PlusSign = '+'
+    SpaceBar = ' '
 
-class CapitalLettersEnum(str, Enum):
+class CapitalLetters(str, Enum):
     A = "A"
     B = "B"
     C = "C"
@@ -88,7 +88,7 @@ class CapitalLettersEnum(str, Enum):
     Y = "Y"
     Z = "Z"
 
-class SmallLettersEnum(str, Enum):
+class SmallLetters(str, Enum):
     a = "a"
     b = "b"
     c = "c"
@@ -117,7 +117,7 @@ class SmallLettersEnum(str, Enum):
     z = "z"
 
 
-class DigitsEnum(str, Enum):
+class Digits(str, Enum):
     One = "1"
     Two = "2"
     Three = "3"
@@ -128,11 +128,6 @@ class DigitsEnum(str, Enum):
     Eigth = "8"
     Nine = "9"
     Zero = "0"
-
-class Letters(BaseModel):
-    CapitalLetters = CapitalLettersEnum
-    SmallLetters = SmallLettersEnum
-    Digits = DigitsEnum
 
 
 
