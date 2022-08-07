@@ -1,3 +1,4 @@
+import json
 from pydantic import BaseModel
 from __future__ import annotations
 from typing import Dict, List, Optional
@@ -98,6 +99,13 @@ class HTMLParsedNode(BaseModel):
     contents: HTMLContentParent
 
     def __str__(self) -> str:
-        self.contents.tag_raw
+        return json.dumps(
+            {
+                "key": self.key,
+                "contents": self.contents.tag_raw
+            },
+            indent=4, sort_keys=True
+        )
+        
 
 
