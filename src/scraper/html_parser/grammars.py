@@ -165,10 +165,6 @@ class TagMode(int, Enum):
     EndTag = 0
 
 
-class Attribute(BaseModel):
-    attr_name: str
-    attr_value: str
-
 
 
 
@@ -176,7 +172,7 @@ class GrammarParent(BaseModel):
     start_tag =  Literal[Brackets.LeftAngleBracket]
     end_slash = Optional[Literal[Slashes.ForwardSlash]]
     end_tag =  Literal[Brackets.RightAngleBracket]
-    attributes: List[Attribute]
+    attributes_text: str
 
 class GrammarATag(GrammarParent):    
     chars = Literal[TagsSmallLetterTty.a]
