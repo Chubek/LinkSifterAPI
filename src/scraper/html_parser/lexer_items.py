@@ -2,6 +2,7 @@ from enum import Enum
 from pydantic import BaseModel
 from typing import Literal
 
+
 class Brackets(str, Enum):
     LeftAngleBracket = '<'
     RightAngleBracket = '>'
@@ -12,22 +13,24 @@ class Brackets(str, Enum):
     LeftCurlyBracket = '{'
     RightCurlyleBracket = '}'
 
+
 class Slashes(str, Enum):
     ForwardSlash = '/'
     BackwardSlash = '\\'
 
+
 class SpecialCharacters(str, Enum):
     AcuteAccent = '&#180;'
-    Ampersand   = '&#38;'
+    Ampersand = '&#38;'
     CentSign = '&#162;'
     Copyright = '&#169;'
     Dagger = '&#180;'
     DegreeSign = '&#247;'
     DivisionSign = '&#180;'
     Euro = '&#8363;'
-    FractionOneHalf	 = '&#189;'
+    FractionOneHalf = '&#189;'
     FractionOneFourth = '&#188;'
-    FractionThreeFouths	 = '&#190;'
+    FractionThreeFouths = '&#190;'
     GreaterThan = '&#62;'
     LeftAngleQuote = '&#171;'
     LessThan = '&#60;'
@@ -49,7 +52,7 @@ class Symbols(str, Enum):
     DollarSign = '$'
     Caret = '^'
     Dash = '-'
-    Pipe = '|'    
+    Pipe = '|'
     UnderLine = '_'
     Ampersand = '&'
     Pound = '#'
@@ -59,6 +62,7 @@ class Symbols(str, Enum):
     SemiColon = ';'
     PlusSign = '+'
     SpaceBar = ' '
+
 
 class CapitalLetters(str, Enum):
     A = "A"
@@ -87,6 +91,7 @@ class CapitalLetters(str, Enum):
     X = "X"
     Y = "Y"
     Z = "Z"
+
 
 class SmallLetters(str, Enum):
     a = "a"
@@ -128,6 +133,3 @@ class Digits(str, Enum):
     Eigth = "8"
     Nine = "9"
     Zero = "0"
-
-
-
