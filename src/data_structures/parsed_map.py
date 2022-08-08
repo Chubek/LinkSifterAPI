@@ -1,7 +1,7 @@
 import enum
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
-from typing import Any, List, Optional, Tuple, TypeVar, Union, Generic
+from typing import Any, List, Literal, Optional, Tuple, TypeVar, Union, Generic
 from __future__ import annotations
 import json
 
@@ -143,17 +143,22 @@ class ParsedMap(GenericModel, Generic[DataT]):
                 parsed_node = self.get_index(target_index)
                 parsed_node.child_key = key_item
                 self.set_index(target_index, parsed_node)
+            case DirectionTty.Self:
+                parsed_node = self.get_index(target_index)
+                parsed_node.key = key_item
+                self.set_index(target_index, parsed_node)
 
-    def __getitem__(self, key: Tuple[int, int]) -> ParsedNode:
-        match 
+    def __getitem__(self, key: Tuple[int, bool]) -> ParsedNode:
+        self.get_single(key[0], key[1])
 
         self.get_single_object(key)
 
-    def __setitem__(self, key: int, value: ParsedNode):
-        self.set_single_object(key, value)
+    def __setitem__(self, _: Literal['_'], value: ParsedNode):
+        self.set_single_object(value)
 
     def __str__(self):
-        return
+        return "".join([pn.key 
+                for pn in self.hashtable])
 
     @staticmethod
     def make_key_hash(obj: Any) -> int:
