@@ -2,176 +2,19 @@ from typing import List, Literal, Optional, Tuple
 from .lexer_items import *
 from enum import Enum
 from pydantic import BaseModel
-
-
-class TagsTty(str, Enum):
-    a = "a"
-    p = "p"
-    b = "b"
-    i = "i"
-    u = "u"
-    q = "q"
-    strong = "strong"
-    ul = "ul"
-    ol = "ol"
-    li = "li"
-    button = "button"
-    input = "input"
-    table = "table"
-    tbody = "tbody"
-    thead = "thead"
-    tr = "tr"
-    td = "td"
-    th = "th"
-    html = "html"
-    body = "body"
-    h1 = "h1"
-    h2 = "h2"
-    h3 = "h3"
-    h4 = "h4"
-    h5 = "h5"
-    h6 = "h6"
-    select = "select"
-    abbr = "abbr"
-
-
-class TagsSmallLetterTty(List[SmallLetters], Enum):
-    a = [SmallLetters.a]
-    p = [SmallLetters.p]
-    b = [SmallLetters.b]
-    i = [SmallLetters.i]
-    u = [SmallLetters.u]
-    q = [SmallLetters.q]
-    strong = [
-        SmallLetters.s,
-        SmallLetters.t,
-        SmallLetters.r,
-        SmallLetters.o,
-        SmallLetters.n,
-        SmallLetters.g,
-    ]
-    ul = [
-        SmallLetters.u,
-        SmallLetters.l,
-    ]
-    ol = [
-        SmallLetters.o,
-        SmallLetters.l,
-    ]
-    li = [
-        SmallLetters.l,
-        SmallLetters.i,
-    ]
-    button = [
-        SmallLetters.b,
-        SmallLetters.u,
-        SmallLetters.t,
-        SmallLetters.t,
-        SmallLetters.o,
-        SmallLetters.n,
-    ]
-    input = [
-        SmallLetters.i,
-        SmallLetters.n,
-        SmallLetters.p,
-        SmallLetters.u,
-        SmallLetters.t,
-    ]
-    table = [
-        SmallLetters.t,
-        SmallLetters.a,
-        SmallLetters.b,
-        SmallLetters.l,
-        SmallLetters.e,
-    ]
-    tbody = [
-        SmallLetters.t,
-        SmallLetters.b,
-        SmallLetters.o,
-        SmallLetters.d,
-        SmallLetters.y,
-    ]
-    thead = [
-        SmallLetters.t,
-        SmallLetters.h,
-        SmallLetters.e,
-        SmallLetters.a,
-        SmallLetters.d,
-    ]
-    tr = [
-        SmallLetters.t,
-        SmallLetters.r,
-    ]
-    td = [
-        SmallLetters.t,
-        SmallLetters.d,
-    ]
-    th = [
-        SmallLetters.t,
-        SmallLetters.h,
-    ]
-    html = [
-        SmallLetters.h,
-        SmallLetters.t,
-        SmallLetters.m,
-        SmallLetters.l,
-    ]
-    body = [
-        SmallLetters.b,
-        SmallLetters.o,
-        SmallLetters.d,
-        SmallLetters.y,
-    ]
-    h1 = [
-        SmallLetters.h,
-        Digits.One,
-    ]
-    h2 = [
-        SmallLetters.h,
-        Digits.Two,
-    ]
-    h3 = [
-        SmallLetters.h,
-        Digits.Three,
-    ]
-    h4 = [
-        SmallLetters.h,
-        Digits.Four,
-    ]
-    h5 = [
-        SmallLetters.h,
-        Digits.Five,
-    ]
-    h6 = [
-        SmallLetters.h,
-        Digits.Six,
-    ]
-    select = [
-        SmallLetters.s,
-        SmallLetters.e,
-        SmallLetters.l,
-        SmallLetters.e,
-        SmallLetters.c,
-        SmallLetters.c,
-    ]
-    abbr = [
-        SmallLetters.a,
-        SmallLetters.b,
-        SmallLetters.b,
-        SmallLetters.r,
-    ]
-
-
-class TagMode(int, Enum):
-    StartTag = 0
-    EndTag = 0
+from .grammar_tty import *
 
 
 class GrammarParent(BaseModel):
     start_tag = Literal[Brackets.LeftAngleBracket]
     end_slash = Optional[Literal[Slashes.ForwardSlash]]
     end_tag = Literal[Brackets.RightAngleBracket]
-    attributes_text: str
+    chars = TagsSmallLetterTty = TagsSmallLetterTty.empty
+    tag_type: TagsTty = TagsTty.null
+    tag_mode: TagMode
+    attribute_keys: Optional[List[str]]
+
+    chars_buffer: List[SmallLetters]
 
 
 class GrammarATag(GrammarParent):
