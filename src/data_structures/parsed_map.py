@@ -1,7 +1,7 @@
 import enum
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
-from typing import Any, List, Optional, TypeVar, Union, Generic
+from typing import Any, List, Optional, Tuple, TypeVar, Union, Generic
 from __future__ import annotations
 import json
 
@@ -32,16 +32,7 @@ class ParsedNode(GenericModel, Generic[DataT]):
     root_key: Optional[int] = -1
 
     def __str__(self) -> str:
-        return json.dumps({
-            "val": str(self.val),
-            "key": self.key,
-            "child_key": self.child_key,
-            "next_key": self.next_key,
-            "prev_key": self.prev_key,
-            "parent_key": self.parent_key,
-            "root_key": self.root_key,
-
-        }, indent=4, sort_keys=True)
+        return str(self.val)
 
     def __repr__(self) -> str:
         return str(self)
@@ -51,7 +42,10 @@ class ParsedMap(GenericModel, Generic[DataT]):
     hashtable: List[Union[ParsedNode[DataT], None]] = []
     length: int = 0
 
-    def key_function(self, obj: DataT) -> int:
+    def key_function(
+        self,
+        obj: Union[DataT, ParsedNode]
+    ) -> int:
         return self.make_key_hash(obj)
 
     def hash_function(self, key: int) -> int:
@@ -67,134 +61,28 @@ class ParsedMap(GenericModel, Generic[DataT]):
         try:
             match unwrap:
                 case True:
-                    return self.hashtable[key_index - 1].val
+                    return self.hashtable[key_index].val
                 case False:
-                    return self.hashtable[key_index - 1]
+                    return self.hashtable[key_index]
         except:
             return None
 
-    def get_addr(
-        self,
-        key: int,
-        directions: List[DirectionTty],
-        unwrap=True
-    ) -> Optional[Union[ParsedMap, DataT]]:
-        key_index = self.hash_function(key)
+    
+    def set_single_object(self, value: DataT):
+        key_inner = self.key_function(value)
 
-        try:
-            first_level = self.hashtable[key_index - 1]
-        except:
-            return None
-
-        fin = first_level
-
-        for dir in directions:
-            match dir:
-                case DirectionTty.Self:
-                    fin = fin
-                    break
-                case DirectionTty.Next:
-                    fin_key_next = fin.next_key
-
-                    if fin_key_next is None:
-                        break
-
-                    if fin_key_next == -1:
-                        break
-
-                    fin = self.get_single(
-                        fin_key_next,
-                        unwrap=False
-                    )
-                case DirectionTty.Prev:
-                    fin_key_prev = fin.prev_key
-
-                    if fin_key_prev is None:
-                        break
-
-                    if fin_key_prev == -1:
-                        break
-
-                    fin = self.get_single(
-                        fin_key_prev,
-                        unwrap=False
-                    )
-                case DirectionTty.Parent:
-                    fin_key_parent = fin.parent_key
-
-                    if fin_key_parent is None:
-                        break
-
-                    if fin_key_parent == -1:
-                        break
-
-                    fin = self.get_single(
-                        fin_key_parent,
-                        unwrap=False
-                    )
-                case DirectionTty.Parent:
-                    fin_key_root = fin.root_key
-
-                    if fin_key_root is None:
-                        break
-
-                    if fin_key_root == -1:
-                        break
-
-                    fin = self.get_single(
-                        fin_key_root,
-                        unwrap=False
-                    )
-
-                case DirectionTty.Child:
-                    fin_key_child = fin.child_key
-
-                    if fin_key_child is None:
-                        break
-
-                    if fin_key_child == -1:
-                        break
-
-                    fin = self.get_single(
-                        fin_key_child,
-                        unwrap=False
-                    )
-
-        match unwrap:
-            case True:
-                return fin.val
-            case False:
-                return fin
-
-    def set_key(self,
-                val: DataT,
-                key: int,
-                next_key=-1,
-                prev_key=-1,
-                child_key=-1,
-                parent_key=-1,
-                root_key=-1,
-                ):
-        hash_item = ParsedNode(
-            val=val,
-            key=key,
-            next_key=next_key,
-            prev_key=prev_key,
-            child_key=child_key,
-            parent_key=parent_key,
-            root_key=root_key
+        parsed_node = ParsedNode(
+            val=value,
+            key=key_inner,
+            parent_key=None,
+            child_key=None,
+            next_key=None,
+            prev_key=None,
+            root_key=None,
         )
 
-        hash_val = self.hash_function(key)
-
-        if self.length >= hash_val:
-            self.hashtable[hash_val] = hash_item
-        else:
-            self.hashtable.append(hash_item)
-            self.length += 1
-
-    def set_single_object(self, key: int, value: ParsedNode):
-        item_index = self.hash_function(key)
+        key_outer = self.key_function(parsed_node)
+        item_index = self.hash_function(key_outer)
 
         match 0 <= item_index <= self.length:
             case True:
@@ -256,7 +144,9 @@ class ParsedMap(GenericModel, Generic[DataT]):
                 parsed_node.child_key = key_item
                 self.set_index(target_index, parsed_node)
 
-    def __getitem__(self, key: int) -> ParsedNode:
+    def __getitem__(self, key: Tuple[int, int]) -> ParsedNode:
+        match 
+
         self.get_single_object(key)
 
     def __setitem__(self, key: int, value: ParsedNode):

@@ -1,3 +1,4 @@
+from importlib.resources import contents
 import json
 from pydantic import BaseModel
 from __future__ import annotations
@@ -19,7 +20,8 @@ class InnerText(BaseModel):
 class HTMLContentParent(BaseModel):
     tag_type: TagsTty
     inner_text: Optional[str]
-    cls: Optional[str]
+    tag_cls: Optional[List[str]] = []
+    tag_id: Optional[str] = ""
     tag_raw: str
 
 
@@ -111,10 +113,9 @@ class HTMLParsedNode(BaseModel):
     contents: HTMLContentParent
 
     def __str__(self) -> str:
-        return json.dumps(
-            {
-                "key": self.key,
-                "contents": self.contents.tag_raw
-            },
-            indent=4, sort_keys=True
-        )
+        idd = self.contents.tag_id
+        cls = "_".join(self.contents.tag_cls)
+
+        return f"{idd}{cls}"
+
+
