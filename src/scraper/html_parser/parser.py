@@ -8,13 +8,6 @@ from enum import Enum
 from ...data_structures.parsed_map import ParsedMap
 
 
-class NERTty(int, Enum):
-    pass
-
-
-class InnerText(BaseModel):
-    text: str
-    ner: NERTty
 
 
 class HTMLContentParent(BaseModel):
