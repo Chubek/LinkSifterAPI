@@ -1,0 +1,4 @@
+# these are the settubgs fir Link Sifter API
+
+ConlluFileForNER: "src/resources/ner.conllu"
+  

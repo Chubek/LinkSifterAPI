@@ -42,6 +42,22 @@ class NERClassProperties(BaseModel):
 
         return obj
 
+    @classmethod
+    def new_entity(cls, text: str) -> NERClassProperties:
+        obj = cls(text=text, paragraph="")
+        obj.assert_is_cap()
+        obj.assert_contains_only_one_cap()
+        obj.assert_all_capital_and_period()
+        obj.assert_contains_a_digit()
+        obj.assert_has_more_than_two_digits()
+        obj.assert_has_more_than_four_digits()
+        obj.assert_all_digits_and_slash()
+        obj.assert_contains_cs_at_start_end()
+        obj.assert_contains_pa_at_start_end()
+        obj.assert_is_digit_or_period()
+
+        return obj
+
     def assert_is_cap(self):
         if self.text[0].isupper():
             self.is_capitalized = True
