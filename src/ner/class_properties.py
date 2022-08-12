@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from .currency_signs import currency_signs
 
 
-class NERClassProperties(BaseModel):
+class NERTtyProperties(BaseModel):
     text: str
     paragraph: str
     is_capitalized: bool = False
@@ -29,7 +29,7 @@ class NERClassProperties(BaseModel):
     unique_in_doc: bool = False
 
     @classmethod
-    def new(cls, text: str, paragraph: str) -> NERClassProperties:
+    def new(cls, text: str, paragraph: str) -> NERTtyProperties:
         obj = cls(text=text, paragraph=paragraph)
         obj.assert_is_cap()
         obj.assert_contains_only_one_cap()

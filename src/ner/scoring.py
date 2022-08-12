@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 from pydantic import BaseModel
 
-from .class_properties import NERClassProperties
+from .class_properties import NERTtyProperties
 
 
 class ScoreTty(BaseModel):
@@ -58,7 +58,8 @@ class ScoreProb(BaseModel):
         return self.score == other
 
 
-class NERClass(int, Enum):
+class NERTty(int, Enum):
+    NotEntity = -1
     Person = 0
     Place = 1
     DateTime = 2
@@ -69,13 +70,13 @@ class NERClass(int, Enum):
 
 class SPW(BaseModel):
     score_probs: List[ScoreProb]
-    ner_class: NERClass
+    ner_class: NERTty
 
     @classmethod
     def new(
         cls,
         scores_probs: List[Tuple[ScoreTty, int]],
-        ner_class: NERClass,
+        ner_class: NERTty,
     ):
         if sum(b[1] for b in scores_probs) > 100:
             raise Exception(f"Error with probs: {ner_class}")
@@ -96,7 +97,7 @@ PERSON = SPW.new(
         (ScoreTty.new(signage_score=0), 15),
         (ScoreTty.new(context_score=1), 30),
     ],
-    NERClass.Person
+    NERTty.Person
 )
 
 PLACE = SPW.new(
@@ -112,7 +113,7 @@ PLACE = SPW.new(
         (ScoreTty.new(context_score=2), 5),
         (ScoreTty.new(context_score=3), 15),
     ],
-    NERClass.Place
+    NERTty.Place
 )
 
 DATETIME = SPW.new(
@@ -126,7 +127,7 @@ DATETIME = SPW.new(
         (ScoreTty.new(context_score=2), 5),
         (ScoreTty.new(context_score=3), 5),
     ],
-    NERClass.DateTime
+    NERTty.DateTime
 )
 ORGANIZATION = SPW.new(
     [
@@ -135,19 +136,19 @@ ORGANIZATION = SPW.new(
         (ScoreTty.new(context_score=2), 10),
         (ScoreTty.new(context_score=3), 10),
     ],
-    NERClass.Organization
+    NERTty.Organization
 )
 CURRENCY = SPW.new(
     [
         (ScoreTty.new(signage_score=1), 100),
     ],
-    NERClass.Currency
+    NERTty.Currency
 )
 PERCENTAGE = SPW.new(
     [
         (ScoreTty.new(signage_score=2), 100),
     ],
-    NERClass.Percentage
+    NERTty.Percentage
 )
 
 
@@ -163,12 +164,12 @@ def unwrap_temps() -> List[SPW]:
 
 
 class NERScoreEntity(BaseModel):
-    base: NERClassProperties
+    base: NERTtyProperties
     score: ScoreTty
 
     @classmethod
     def new(cls, text: str, context: str) -> NERScoreEntity:
-        properties = NERClassProperties.new(text, context)
+        properties = NERTtyProperties.new(text, context)
         dummy_score = ScoreTty(
             cap_score=0,
             digit_score=0,
@@ -236,7 +237,7 @@ class NERScoreEntity(BaseModel):
             context_score=context_score
         )
 
-    def assert_ner_class(self) -> NERClass:
+    def assert_ner_class(self) -> NERTty:
         spws = unwrap_temps()
 
         res = []
@@ -252,4 +253,9 @@ class NERScoreEntity(BaseModel):
 
             res.append(res_inner)
 
-        return max(res, key=lambda x: x[1])
+        mx = max(res, key=lambda x: x[1])
+
+        if mx < 15:
+            return NERTty.NotEntity
+
+        return mx
