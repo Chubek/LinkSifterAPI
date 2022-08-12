@@ -1,12 +1,16 @@
+from __future__ import annotations
+
+import re
 from curses.ascii import isalnum, isdigit, islower, isupper
 from enum import Enum
-from typing import List, Tuple
-from __future__ import annotations
-from pydantic import BaseModel
-from .currency_signs import currency_signs
-import re
 from itertools import combinations, zip_longest
 from operator import countOf
+from typing import List, Tuple
+
+from pydantic import BaseModel
+
+from .currency_signs import currency_signs
+
 
 class NERClassProperties(BaseModel):
     text: str
@@ -41,23 +45,7 @@ class NERClassProperties(BaseModel):
         obj.assert_unique_in_doc()
 
         return obj
-
-    @classmethod
-    def new_entity(cls, text: str) -> NERClassProperties:
-        obj = cls(text=text, paragraph="")
-        obj.assert_is_cap()
-        obj.assert_contains_only_one_cap()
-        obj.assert_all_capital_and_period()
-        obj.assert_contains_a_digit()
-        obj.assert_has_more_than_two_digits()
-        obj.assert_has_more_than_four_digits()
-        obj.assert_all_digits_and_slash()
-        obj.assert_contains_cs_at_start_end()
-        obj.assert_contains_pa_at_start_end()
-        obj.assert_is_digit_or_period()
-
-        return obj
-
+    
     def assert_is_cap(self):
         if self.text[0].isupper():
             self.is_capitalized = True
@@ -87,7 +75,7 @@ class NERClassProperties(BaseModel):
         ]) > 4
 
     def assert_all_digits_and_slash(self):
-        self.assert_all_digits_and_slash = all([
+        self.only_digit_and_slash = all([
             c.isdigit() or c == '/' for c in self.text
         ])
 
@@ -141,7 +129,7 @@ class NERClassProperties(BaseModel):
         ):
             for tp in [bi, tri, quad, quin]:
                 if assert_has_text_and_is_all_cap(tp):
-                    self.assert_is_sequence_of_caps = True
+                    self.sequence_of_caps = True
                     break
 
     def assert_unique_in_doc(self):

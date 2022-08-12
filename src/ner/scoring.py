@@ -1,8 +1,12 @@
-from typing import List, Tuple
-from pydantic import BaseModel
-from class_properties import NERClassProperties
-from enum import Enum
 from __future__ import annotations
+
+from enum import Enum
+from typing import List, Tuple
+
+from pydantic import BaseModel
+
+from .class_properties import NERClassProperties
+
 
 class ScoreTty(BaseModel):
     cap_score: int
@@ -12,10 +16,10 @@ class ScoreTty(BaseModel):
 
     @classmethod
     def new(
-        cls, 
-        cap_score=0, 
-        digit_score=0, 
-        signage_score=0, 
+        cls,
+        cap_score=0,
+        digit_score=0,
+        signage_score=0,
         context_score=0
     ) -> ScoreTty:
         return ScoreTty(
@@ -40,13 +44,18 @@ class ScoreTty(BaseModel):
                         self.unwrap(),
                         other.unwrap()
                     )
-        ])
-
+                    ])
 
 
 class ScoreProb(BaseModel):
     score: ScoreTty
     prob: int
+
+    def __eq__(self, other: ScoreProb) -> bool:
+        return self.score == other.score and self.prob == other.prob
+
+    def score_equal(self, other: ScoreTty) -> bool:
+        return self.score == other
 
 
 class NERClass(int, Enum):
@@ -62,7 +71,6 @@ class SPW(BaseModel):
     score_probs: List[ScoreProb]
     ner_class: NERClass
 
-
     @classmethod
     def new(
         cls,
@@ -70,141 +78,156 @@ class SPW(BaseModel):
         ner_class: NERClass,
     ):
         if sum(b[1] for b in scores_probs) > 100:
-            raise Exception("Error with probs")
+            raise Exception(f"Error with probs: {ner_class}")
 
         sp = [ScoreProb(score=s, prob=p)
-                for s, p
-                    in scores_probs]
+              for s, p
+              in scores_probs]
 
         obj = SPW(score_probs=sp, ner_class=ner_class)
 
         return obj
 
 
+PERSON = SPW.new(
+    [
+        (ScoreTty.new(cap_score=1), 40),
+        (ScoreTty.new(digit_score=0), 15),
+        (ScoreTty.new(signage_score=0), 15),
+        (ScoreTty.new(context_score=1), 30),
+    ],
+    NERClass.Person
+)
 
-class ScoreNerProbs(SPW, Enum):
-    Person = SPW.new(
-        [
-            (ScoreTty.new(cap_score=1), 40),
-            (ScoreTty.new(digit_score=0), 15),
-            (ScoreTty.new(signage_score=0), 15),
-            (ScoreTty.new(context_score=1), 30),
-        ],
-        NERClass.Person
-    ),
-    Place = SPW.new(
-        [
-            (ScoreTty.new(cap_score=1), 20),
-            (ScoreTty.new(cap_score=3), 10),
-            (ScoreTty.new(cap_score=4), 5),
-            (ScoreTty.new(digit_score=1), 0),
-            (ScoreTty.new(digit_score=2), 5),
-            (ScoreTty.new(digit_score=4), 20),
-            (ScoreTty.new(digit_score=9), 5),
-            (ScoreTty.new(digit_score=11), 5),
-            (ScoreTty.new(context_score=1), 20),
-            (ScoreTty.new(context_score=2), 5),
-            (ScoreTty.new(context_score=3), 15),
-        ],
-        NERClass.Place      
-    )
-    DateTime = SPW.new(
-        [
-            (ScoreTty.new(cap_score=4), 15),
-            (ScoreTty.new(digit_score=1), 0),
-            (ScoreTty.new(digit_score=2), 10),
-            (ScoreTty.new(digit_score=4), 20),
-            (ScoreTty.new(digit_score=9), 10),
-            (ScoreTty.new(digit_score=11), 40),
-            (ScoreTty.new(context_score=1), 5),
-            (ScoreTty.new(context_score=2), 5),
-            (ScoreTty.new(context_score=3), 5),
-        ],
-        NERClass.DateTime      
-    )
-    Organization = SPW.new(
-        [
-            (ScoreTty.new(cap_score=4), 60),
-            (ScoreTty.new(context_score=1), 20),
-            (ScoreTty.new(context_score=2), 10),
-            (ScoreTty.new(context_score=3), 10),
-        ],        
-    )
-    Currency = SPW.new(
-        [
-            (ScoreTty.new(signage_score=1), 100),
-        ],
-        NERClass.Currency       
-    )
-    Percentage = SPW.new(
-        [
-            (ScoreTty.new(signage_score=2), 100),
-        ],
-        NERClass.Percentage      
-    )
+PLACE = SPW.new(
+    [
+        (ScoreTty.new(cap_score=1), 10),
+        (ScoreTty.new(cap_score=3), 10),
+        (ScoreTty.new(cap_score=4), 5),
+        (ScoreTty.new(digit_score=2), 5),
+        (ScoreTty.new(digit_score=4), 10),
+        (ScoreTty.new(digit_score=9), 5),
+        (ScoreTty.new(digit_score=11), 5),
+        (ScoreTty.new(context_score=1), 20),
+        (ScoreTty.new(context_score=2), 5),
+        (ScoreTty.new(context_score=3), 15),
+    ],
+    NERClass.Place
+)
 
-    def unwrap(self) -> List[ScoreNerProbs]:
-        return [
-            self.Person,
-            self.Place,
-            self.DateTime,
-            self.Organization,
-            self.Currency,
-            self.Percentage
-        ]
+DATETIME = SPW.new(
+    [
+        (ScoreTty.new(cap_score=4), 15),
+        (ScoreTty.new(digit_score=2), 10),
+        (ScoreTty.new(digit_score=4), 10),
+        (ScoreTty.new(digit_score=9), 5),
+        (ScoreTty.new(digit_score=11), 40),
+        (ScoreTty.new(context_score=1), 5),
+        (ScoreTty.new(context_score=2), 5),
+        (ScoreTty.new(context_score=3), 5),
+    ],
+    NERClass.DateTime
+)
+ORGANIZATION = SPW.new(
+    [
+        (ScoreTty.new(cap_score=4), 60),
+        (ScoreTty.new(context_score=1), 20),
+        (ScoreTty.new(context_score=2), 10),
+        (ScoreTty.new(context_score=3), 10),
+    ],
+    NERClass.Organization
+)
+CURRENCY = SPW.new(
+    [
+        (ScoreTty.new(signage_score=1), 100),
+    ],
+    NERClass.Currency
+)
+PERCENTAGE = SPW.new(
+    [
+        (ScoreTty.new(signage_score=2), 100),
+    ],
+    NERClass.Percentage
+)
 
 
-    
+def unwrap_temps() -> List[SPW]:
+    return [
+        PERSON,
+        PLACE,
+        DATETIME,
+        ORGANIZATION,
+        CURRENCY,
+        PERCENTAGE
+    ]
+
 
 class NERScoreEntity(BaseModel):
     base: NERClassProperties
     score: ScoreTty
 
-    def calculate_score(self):
-        is_cap = lambda x: 1 if x.is_capitalized else 0
-        one_cap = lambda x: 2 if x.contains_only_one_capital else 0
-        all_cap_per = lambda x: 4 if x.all_capitals_and_period else 0
-        a_digit = lambda x: 1 if x.contains_a_digit else 0
-        two_digit = lambda x: 2 if x.more_than_2_digit else 0
-        four_digit = lambda x: 4 if x.more_than_4_digit else 0
-        only_d_an_s = lambda x: 7 if x.only_digit_and_slash else 0
-        curr = lambda x: 1 if x.contains_currency_sign_at_start_end else 0
-        per = lambda x: 2 if x.contains_percent_sign_at_start_end else 0
-        seq_caps = lambda x: 1 if x.sequence_of_caps else 0
-        unique = lambda x: 2 if x.unique_in_doc else 0
+    @classmethod
+    def new(cls, text: str, context: str) -> NERScoreEntity:
+        properties = NERClassProperties.new(text, context)
+        dummy_score = ScoreTty(
+            cap_score=0,
+            digit_score=0,
+            signage_score=0,
+            context_score=0
+        )
 
+        obj = NERScoreEntity(
+            base=properties,
+            score=dummy_score
+        )
+
+        obj.calculate_score()
+
+        return obj
+
+    def calculate_score(self):
+        def is_cap(x): return 1 if x.is_capitalized else 0
+        def one_cap(x): return 2 if x.contains_only_one_capital else 0
+        def all_cap_per(x): return 4 if x.all_capitals_and_period else 0
+        def a_digit(x): return 1 if x.contains_a_digit else 0
+        def two_digit(x): return 2 if x.more_than_2_digit else 0
+        def four_digit(x): return 4 if x.more_than_4_digit else 0
+        def only_d_an_s(x): return 7 if x.only_digit_and_slash else 0
+        def curr(x): return 1 if x.contains_currency_sign_at_start_end else 0
+        def per(x): return 2 if x.contains_percent_sign_at_start_end else 0
+        def seq_caps(x): return 1 if x.sequence_of_caps else 0
+        def unique(x): return 2 if x.unique_in_doc else 0
 
         cap_score = sum([f(self.base)
-                            for f in
-                                [
-                                    is_cap,
-                                    one_cap,
-                                    all_cap_per,
-                                ]])
+                         for f in
+                         [
+            is_cap,
+            one_cap,
+            all_cap_per,
+        ]])
 
         digit_score = sum([f(self.base)
-                            for f in
-                                [
-                                    a_digit,
-                                    two_digit,
-                                    four_digit,
-                                    only_d_an_s
-                                ]])
-        
+                           for f in
+                           [
+            a_digit,
+            two_digit,
+            four_digit,
+            only_d_an_s
+        ]])
+
         signage_score = sum([f(self.base)
                             for f in
-                                [
-                                    curr,
-                                    per,
-                                ]])
-
+                             [
+            curr,
+            per,
+        ]])
 
         context_score = sum([f(self.base)
                             for f in
-                                [
-                                    seq_caps,
-                                    unique,
-                                ]])
+                             [
+            seq_caps,
+            unique,
+        ]])
 
         self.score = ScoreTty(
             cap_score=cap_score,
@@ -213,32 +236,20 @@ class NERScoreEntity(BaseModel):
             context_score=context_score
         )
 
-    def check_spw(self, spw: SPW) -> int:
-        fin_prob = 0
-
-        for scprob in spw.score_probs:
-            score = scprob.score
-            prob = scprob.prob
-
-            if score == self.score:
-                fin_prob += prob
-
-
-        return fin_prob
-
-
     def assert_ner_class(self) -> NERClass:
-        ner_probs = ScoreNerProbs.unwrap()
+        spws = unwrap_temps()
 
         res = []
 
-        for ner_prob in ner_probs:
-            res.append([
-                ner_prob.ner_class,
-                self.check_spw(ner_prob)
-            ])
+        for spw in spws:
+            score_probs = spw.score_probs
+            ner_class = spw.ner_class
+            res_inner = (ner_class, 0)
 
+            for sc_pr in score_probs:
+                if sc_pr.score_equal(self.score):
+                    res_inner[1] += sc_pr.prob
 
-        return max(res, key=lambda x:x[1])
+            res.append(res_inner)
 
-                    
+        return max(res, key=lambda x: x[1])
