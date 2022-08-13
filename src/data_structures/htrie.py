@@ -11,6 +11,7 @@ class HTrieNode(BaseModel):
     children: List[Optional[HTrieNode]] = []
     is_terminal: bool = False
     value: DataHTML = DataHTML.default()
+    __next_iter = 0
 
     @classmethod
     def from_size(
@@ -40,16 +41,28 @@ class HTrieNode(BaseModel):
 
         return self
 
+    def __iter__(self) -> HTrieNode:
+        self.__next_iter = -1
+        return self
+
+    def __next__(self) -> HTrieNode:
+        self.__next_iter += 1
+
+        if self.__next_iter >= len(self.children):
+            raise StopIteration
+
+        return self.children[self.__next_iter]
+
 
 class HTrie(BaseModel):
     root = HTrieNode()
 
     def get_array_index(
         self,
-        char: str,
+        word: str,
         length: int,
     ) -> int:
-        char_hash = self.hash_char(char)
+        char_hash = self.hash_char(word)
 
         return char_hash % length
 
@@ -58,52 +71,42 @@ class HTrie(BaseModel):
         addr: AddrKey,
         value: DataHTML
     ):
-        key_str = str(addr)
-        length = len(key_str)
-
         root = self.root
-        is_still_root = True
 
-        if len(root) < length:
-            root: HTrieNode = root + ([None] * length - len(root))
-            self.root = root
+        for key in addr:
+            ind = self.get_array_index(
+                key,
+                len(root),
+            )
 
-        for i, ch in enumerate(key_str):
-            length = len(root)
-            ind = self.get_array_index(ch, length)
-
-            if root[ind] is None:
-                root[ind] = HTrieNode.from_size(length - i)
-                if is_still_root:
-                    self.root = root
+            if len(root) >= ind or root[ind] is None:
+                root[ind] = HTrieNode()
 
             root = root[ind]
-            is_still_root = False
 
-        root.value = value
         root.is_terminal = True
+        root.value = value
 
     def search(
             self,
-            addr: AddrKey) -> Optional[DataHTML]:
-        key_str = str(addr)
+            addr: AddrKey
+    ) -> Optional[DataHTML]:
 
         root = self.root
-        length = len(root)
 
-        for ch in key_str:
-            length = len(root)
-            ind = self.get_array_index(ch, length)
-
-            curr_node = root[ind]
-
-            if curr_node is None:
-                return None
-
-            if curr_node.is_terminal:
+        for key in addr:
+            if root.is_terminal:
                 break
 
-            root = curr_node
+            ind = self.get_array_index(
+                key,
+                len(root),
+            )
+
+            if len(root) >= ind or root[ind] is None:
+                return None
+
+            root = root[ind]
 
         return root.value
 
@@ -114,10 +117,12 @@ class HTrie(BaseModel):
         self.insert(key, value)
 
     @staticmethod
-    def hash_char(ch: str) -> int:
-        ord_ch = ord(ch)
-        bin_int = [int(c) for c in
-                   list(f"{ord_ch:08b}")]
+    def hash_char(word: str) -> int:
+        ord_ch = [ord(ch) for ch in word]
+        bin_int = sum([[int(c) for c in
+                        list(f"{orded:08b}")]
+                       for orded in ord_ch
+                       ], [])
         bin_inv = [i ^ 1 for i in bin_int]
 
         def bin_to_int(ls: List[int]) -> int:
