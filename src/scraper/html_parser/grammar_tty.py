@@ -1286,3 +1286,18 @@ class TagsSmallLetterTty(List[SmallLetters], Enum):
 class TagMode(int, Enum):
     StartTag = 0
     EndTag = 0
+
+
+class IdClass(List[SmallLetters], Enum):
+    cls_str = [
+        SmallLetters.c,
+        SmallLetters.l,
+        SmallLetters.a,
+        SmallLetters.s,
+        SmallLetters.s
+    ]
+    id_str = [
+        SmallLetters.i,
+        SmallLetters.d
+    ]
+    empty = []

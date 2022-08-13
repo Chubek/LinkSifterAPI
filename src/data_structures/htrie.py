@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from typing import Any, List, Literal, NamedTuple, Optional, Tuple, TypeVar, Union
 from __future__ import annotations
 import json
-from .addr_key import AddrKey
-from .data_html import DataHTML
+from ..scraper.html_parser.addr_key import AddrKey
+from ..scraper.html_parser.data_html import DataHTML
 
 
 class HTrieNode(BaseModel):
@@ -79,7 +79,10 @@ class HTrie(BaseModel):
                 len(root),
             )
 
-            if len(root) >= ind or root[ind] is None:
+            if len(root) < ind:
+                root = root + [None]*(ind + 1)
+
+            if root[ind] is None:                
                 root[ind] = HTrieNode()
 
             root = root[ind]

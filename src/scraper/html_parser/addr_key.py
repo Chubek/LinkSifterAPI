@@ -5,9 +5,9 @@ import json
 from bs4 import Tag
 from pydantic import BaseModel
 from typing import Any, List, Literal, NamedTuple, Optional, Tuple, TypeVar, Union
-from ..scraper.html_parser.grammar_tty import TagsTty
-from ..ner.scoring import NERTty
-from ..scraper.html_parser.grammar_tty import TagsTty
+from .grammar_tty import TagsTty
+from ...ner.scoring import NERTty
+from .grammar_tty import TagsTty
 
 
 class AddrKey(BaseModel):

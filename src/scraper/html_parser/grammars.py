@@ -13,7 +13,8 @@ class GrammarParent(BaseModel):
     tag_type: TagsTty = TagsTty.null
     tag_mode: TagMode
     attribute_keys: Optional[List[str]]
-
+    cls_tag = Union[IdClass.cls_str, IdClass.empty]
+    id_tag = Union[IdClass.id_str, IdClass.empty]
     chars_buffer: List[SmallLetters]
 
 
