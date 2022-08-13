@@ -56,9 +56,9 @@ class AddrKey(BaseModel):
             str(self.root_tag),
             str(self.parent_tag),
             str(self.tag),
-            "-".join(self.cls_sorted),
+            "-".join(sorted(self.cls_sorted)),
             self.id,
-            "-".join(self.attribute_keys),
+            "-".join(sorted(self.attribute_keys)),
             str(self.ner_tty),
             str(self.position)
         ]
